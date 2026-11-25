@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="my" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Happy Birthday — A Little Book of Birthday Letters</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for Vintage Literary, Whimsical Handwritten & Myanmar Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Padauk:wght@400;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Quicksand:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Tone.js for gentle chime / birthday melody & candle blow sound -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: '#FAF8F3',
+                        paperDark: '#F2EDE2',
+                        skyAccent: '#89CFF0',
+                        skySoft: '#B0E0E6',
+                        mustard: '#F4D03F',
+                        coral: '#E07A5F',
+                        ink: '#2C3E50',
+                        inkMuted: '#5D6D7E'
+                    },
+                    fontFamily: {
+                        serifTitle: ['"Playfair Display"', '"Padauk"', '"Noto Sans Myanmar"', 'Georgia', 'serif'],
+                        serifBody: ['"Lora"', '"Padauk"', '"Noto Sans Myanmar"', 'Georgia', 'serif'],
+                        sansUi: ['"Quicksand"', '"Noto Sans Myanmar"', 'sans-serif'],
+                        hand: ['"Caveat"', '"Padauk"', 'cursive']
+                    },
+                    boxShadow: {
+                        'book': '0 20px 45px -12px rgba(44, 62, 80, 0.14), 0 4px 12px -2px rgba(44, 62, 80, 0.06)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Subtle organic paper grain texture overlay */
+        
+        body {
+            background-color: #F4EFE6;
+            color: #2C3E50;
+            font-family: 'Lora', 'Padauk', 'Noto Sans Myanmar', serif;
+            background-image: radial-gradient(rgba(137, 207, 240, 0.18) 1px, transparent 0), radial-gradient(rgba(224, 122, 95, 0.12) 1px, transparent 0);
+            background-size: 36px 36px;
+            background-position: 0 0, 18px 18px;
+            overflow-x: hidden;
+        }
+        
+        .vintage-card {
+            background-color: #FAF8F3;
+            background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.6), rgba(242, 237, 226, 0.45));
+            position: relative;
+        }
+        /* Subtle lined notebook rule effect inside letter body (36px spacing for Burmese diacritics) */
+        
+        .letter-lines {
+            background-image: repeating-linear-gradient(transparent, transparent 35px, rgba(137, 207, 240, 0.25) 36px);
+            line-height: 36px;
+        }
+        /* Book spine shadow effect */
+        
+        .book-spine {
+            background: linear-gradient(90deg, rgba(44, 62, 80, 0.07) 0%, rgba(44, 62, 80, 0.02) 3%, rgba(255, 255, 255, 0.4) 6%, transparent 12%);
+        }
+        /* Gentle floating animation for cute ducklings */
+        
+        @keyframes floatSlow {
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-6px) rotate(1.5deg);
+            }
+        }
+        
+        .animate-float {
+            animation: floatSlow 4.5s ease-in-out infinite;
+        }
+        /* Flame flicker for birthday candle */
+        
+        @keyframes flicker {
+            0%,
+            100% {
+                transform: scale(1) rotate(-2deg);
+                opacity: 0.95;
+            }
+            50% {
+                transform: scale(1.08) rotate(2deg);
+                opacity: 1;
+            }
+        }
+        
+        .candle-flame {
+            transform-origin: bottom center;
+            animation: flicker 0.9s ease-in-out infinite;
+        }
+        /* Page flip fade transition */
+        
+        .page-transition {
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+        
+        .page-hidden {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        /* Custom scrollbar for chapter pills */
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Print styles for Keepsake export */
+        
+        @media print {
+            body {
+                background: #FAF8F3 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            #all-letters-grid {
+                display: block !important;
+            }
+            #booklet-reader-container {
+                display: none !important;
+            }
+            .vintage-card {
+                box-shadow: none !important;
+                border: 1px solid #d1d5db !important;
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body class="min-h-screen antialiased selection:bg-skyAccent/40 selection:text-ink">
+
+    <!-- Confetti Canvas Overlay -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none z-50"></canvas>
+
+    <!-- Top Navigation / Keepsake Header -->
+    <header class="sticky top-0 z-30 backdrop-blur-md bg-paper/85 border-b border-skySoft/50 no-print">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-2">
+            <a href="#cover" class="flex items-center gap-2.5 group">
+                <span class="w-9 h-9 rounded-full bg-mustard/30 border border-mustard flex items-center justify-center text-lg shadow-sm group-hover:scale-105 transition">
+                    🐥
+                </span>
+                <div>
+                    <span class="font-serifTitle font-bold text-base sm:text-lg text-ink block leading-none">
+                        For <span class="recipient-name-display">မျက်ဝန်းညိုလေး</span>
+                    </span>
+                    <span class="font-sansUi text-[11px] uppercase tracking-widest text-inkMuted">Birthday Keepsake</span>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex items-center gap-6 font-sansUi text-sm font-semibold text-inkMuted">
+                <a href="#intro" class="hover:text-coral transition">Prologue</a>
+                <a href="#chapters" class="hover:text-coral transition">Short Letters</a>
+                <a href="#wish" class="hover:text-coral transition">Birthday Wish</a>
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <button onclick="openCustomizeModal()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-skyAccent/25 hover:bg-skyAccent/40 text-ink font-sansUi text-xs sm:text-sm font-semibold border border-skyAccent transition shadow-sm cursor-pointer">
+                    <svg class="w-4 h-4 text-ink" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    <span>Personalize</span>
+                </button>
+                <button onclick="shareKeepsake()" title="Copy link or Print" class="p-2 rounded-full bg-paperDark hover:bg-mustard/30 text-ink border border-ink/10 transition cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast Notification Banner -->
+    <div id="toast-banner" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 opacity-0 pointer-events-none transition-all duration-300 transform translate-y-3">
+        <div class="px-5 py-2.5 rounded-full bg-ink text-paper font-sansUi text-sm font-medium shadow-lg flex items-center gap-2">
+            <span id="toast-icon">✨</span>
+            <span id="toast-text">Saved changes!</span>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12 space-y-16 sm:space-y-24">
+
+        <!-- =========================================================
+         1. COVER SECTION (HERO DIGITAL BOOK COVER)
+         ========================================================= -->
+        <section id="cover" class="pt-2 sm:pt-6">
+            <div class="vintage-card book-spine rounded-3xl shadow-book border-2 border-skySoft/80 p-6 sm:p-12 md:p-16 text-center overflow-hidden">
+                <!-- Decorative Corner Botanicals & Stars -->
+                <div class="absolute top-4 left-4 text-skyAccent opacity-70">
+                    <svg class="w-12 h-12" viewBox="0 0 64 64" fill="none"><path d="M8 56C8 30 30 8 56 8" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"/><circle cx="16" cy="16" r="3" fill="#F4D03F"/><path d="M24 10L25.5 14.5L30 16L25.5 17.5L24 22L22.5 17.5L18 16L22.5 14.5L24 10Z" fill="#E07A5F"/></svg>
+                </div>
+                <div class="absolute top-4 right-4 text-skyAccent opacity-70 transform scale-x-[-1]">
+                    <svg class="w-12 h-12" viewBox="0 0 64 64" fill="none"><path d="M8 56C8 30 30 8 56 8" stroke="currentColor" stroke-width="2" stroke-dasharray="4 4"/><circle cx="16" cy="16" r="3" fill="#F4D03F"/><path d="M24 10L25.5 14.5L30 16L25.5 17.5L24 22L22.5 17.5L18 16L22.5 14.5L24 10Z" fill="#E07A5F"/></svg>
+                </div>
+
+                <!-- Inner Decorative Double Frame -->
+                <div class="border border-dashed border-coral/45 rounded-2xl p-6 sm:p-10 relative">
+                    <!-- Top Edition Pill -->
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-skySoft/35 text-ink font-sansUi text-xs font-bold tracking-widest uppercase mb-6">
+                        <span>★</span>
+                        <span>Special Birthday Edition • 07 Chapters</span>
+                        <span>★</span>
+                    </div>
+
+                    <!-- Center Whimsical Duckling with Birthday Cake & Daisy SVG -->
+                    <div class="w-44 h-44 sm:w-52 sm:h-52 mx-auto mb-6 animate-float">
+                        <svg viewBox="0 0 220 220" class="w-full h-full drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Soft Sky Halo -->
+                            <circle cx="110" cy="112" r="88" fill="#B0E0E6" fill-opacity="0.32"/>
+                            <circle cx="110" cy="112" r="76" stroke="#89CFF0" stroke-width="2" stroke-dasharray="6 6"/>
+                            
+                            <!-- Cute Party Hat -->
+                            <path d="M96 48L110 18L124 48H96Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="3" stroke-linejoin="round"/>
+                            <circle cx="110" cy="15" r="5" fill="#F4D03F" stroke="#2C3E50" stroke-width="2.5"/>
+                            <path d="M101 38H119" stroke="#FAF8F3" stroke-width="2.5" stroke-linecap="round"/>
+
+                            <!-- Duckling Head & Plump Body -->
+                            <path d="M74 135C64 135 58 148 64 162C70 176 92 182 112 182C134 182 152 173 156 156C159 143 150 132 140 128C144 120 146 109 146 98C146 72 130 52 110 52C90 52 74 72 74 98C74 111 77 123 82 131C79 132 76 134 74 135Z" fill="#F4D03F" stroke="#2C3E50" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            
+                            <!-- Rosy Cheeks -->
+                            <ellipse cx="87" cy="105" rx="8" ry="5" fill="#E07A5F" fill-opacity="0.55"/>
+                            <ellipse cx="133" cy="105" rx="8" ry="5" fill="#E07A5F" fill-opacity="0.55"/>
+
+                            <!-- Cute Eyes -->
+                            <circle cx="95" cy="92" r="4.2" fill="#2C3E50"/>
+                            <circle cx="125" cy="92" r="4.2" fill="#2C3E50"/>
+                            <circle cx="96.5" cy="90.5" r="1.3" fill="#FFFFFF"/>
+                            <circle cx="126.5" cy="90.5" r="1.3" fill="#FFFFFF"/>
+
+                            <!-- Sweet Orange Beak -->
+                            <path d="M101 101C101 97 119 97 119 101C119 106 114 109 110 109C106 109 101 106 101 101Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="3"/>
+
+                            <!-- Little Wing Holding a Mini Cupcake -->
+                            <path d="M135 138C146 134 156 142 150 152C145 159 132 156 127 151" fill="#F4D03F" stroke="#2C3E50" stroke-width="3" stroke-linecap="round"/>
+                            <!-- Mini Cupcake -->
+                            <path d="M154 142H174L171 156H157L154 142Z" fill="#89CFF0" stroke="#2C3E50" stroke-width="2.5" stroke-linejoin="round"/>
+                            <path d="M152 142C152 135 176 135 176 142H152Z" fill="#FAF8F3" stroke="#2C3E50" stroke-width="2.5"/>
+                            <line x1="164" y1="135" x2="164" y2="127" stroke="#E07A5F" stroke-width="2.5" stroke-linecap="round"/>
+                            <circle cx="164" cy="123" r="3" fill="#F4D03F"/>
+
+                            <!-- Daisy Flower Held on Left -->
+                            <path d="M74 145C62 140 52 148 58 157C63 163 75 160 80 154" fill="#F4D03F" stroke="#2C3E50" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="55" y1="150" x2="45" y2="128" stroke="#588157" stroke-width="3" stroke-linecap="round"/>
+                            <circle cx="45" cy="124" r="9" fill="#FFFFFF" stroke="#2C3E50" stroke-width="2"/>
+                            <circle cx="45" cy="124" r="4" fill="#F4D03F"/>
+
+                            <!-- Little Orange Feet -->
+                            <path d="M92 182V193M85 193H97" stroke="#E07A5F" stroke-width="3.5" stroke-linecap="round"/>
+                            <path d="M126 182V193M121 193H133" stroke="#E07A5F" stroke-width="3.5" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+
+                    <!-- Main Cover Title -->
+                    <h1 class="font-serifTitle font-bold text-3xl sm:text-5xl md:text-6xl text-ink tracking-tight leading-tight mb-4">
+                        Happy Birthday,<br/>
+                        <span class="text-coral italic underline decoration-skyAccent decoration-wavy decoration-2 underline-offset-8 recipient-name-display">မျက်ဝန်းညိုလေး</span>
+                    </h1>
+
+                    <p class="font-serifBody italic text-base sm:text-lg text-inkMuted max-w-xl mx-auto mb-8 leading-relaxed">
+                        “A small collection of heartfelt notes, warm tea memories, and silly duckling doodles gathered just for your special day.”
+                    </p>
+
+                    <!-- Handwritten Author Byline -->
+                    <div class="mb-8">
+                        <span class="font-hand text-2xl sm:text-3xl text-ink">
+                            Written with love by <span class="text-coral font-bold sender-name-display">Your ဘဲရုပ်ဆိုးလေး</span>
+                        </span>
+                    </div>
+
+                    <!-- Primary CTA Button -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3.5 no-print">
+                        <a href="#intro" onclick="playChime()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-full bg-coral hover:bg-coral/90 text-white font-sansUi font-bold text-base shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition">
+                            <span>Open Birthday Letters</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                        </a>
+                        <button onclick="openCustomizeModal()" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-4 rounded-full bg-paperDark hover:bg-skySoft/40 text-ink font-sansUi font-semibold text-sm border border-ink/15 transition cursor-pointer">
+                            <span>✎ Edit Names & Letters</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+         2. INTRODUCTORY BIRTHDAY NOTE (PROLOGUE PAGE)
+         ========================================================= -->
+        <section id="intro" class="scroll-mt-24">
+            <div class="vintage-card book-spine rounded-3xl shadow-book border border-skySoft/70 p-6 sm:p-10 md:p-14">
+                <div class="flex items-center justify-between border-b border-skySoft/60 pb-4 mb-6">
+                    <div class="flex items-center gap-2">
+                        <span class="px-3 py-1 rounded-full bg-mustard/35 text-ink font-sansUi text-xs font-bold uppercase tracking-wider">Prologue</span>
+                        <span class="font-sansUi text-xs text-inkMuted">Page 01</span>
+                    </div>
+                    <span class="font-hand text-xl text-coral" id="intro-date-display">November 25 • Special Day</span>
+                </div>
+
+                <div class="grid md:grid-cols-12 gap-8 items-center">
+                    <div class="md:col-span-8 space-y-4">
+                        <h2 class="font-serifTitle font-bold text-2xl sm:text-3xl text-ink">
+                            Dear <span class="recipient-name-display text-coral">မျက်ဝန်းညိုလေး</span>,
+                        </h2>
+                        <div id="prologue-text" class="font-serifBody text-base sm:text-lg text-ink/90 leading-relaxed space-y-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                        <div class="pt-3 flex items-center justify-between">
+                            <span class="font-hand text-3xl text-ink">— <span class="sender-name-display">Your ဘဲရုပ်ဆိုးလေး</span></span>
+                            <a href="#chapters" class="inline-flex items-center gap-1.5 font-sansUi text-sm font-bold text-coral hover:underline no-print">
+                                <span>Read Chapter 01</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Playful Side Illustration: Cute Goose & Sky Blue Ribbon -->
+                    <div class="md:col-span-4 flex flex-col items-center justify-center bg-paperDark/60 rounded-2xl p-5 border border-skySoft/60">
+                        <svg viewBox="0 0 180 180" class="w-36 h-36 sm:w-40 sm:h-40" fill="none">
+                            <circle cx="90" cy="90" r="72" fill="#89CFF0" fill-opacity="0.2"/>
+                            <!-- Little Goose with Striped Scarf -->
+                            <path d="M72 138C56 138 48 126 52 114C56 102 74 100 84 96C86 82 82 62 84 48C86 35 98 30 108 35C116 39 116 50 110 56C104 62 104 82 108 98C122 102 134 112 130 126C126 138 104 138 72 138Z" fill="#FFFDF9" stroke="#2C3E50" stroke-width="3" stroke-linejoin="round"/>
+                            <!-- Orange Beak -->
+                            <path d="M112 42L128 45L113 51Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="2.5" stroke-linejoin="round"/>
+                            <!-- Eye -->
+                            <circle cx="102" cy="43" r="2.8" fill="#2C3E50"/>
+                            <!-- Cute Coral Scarf -->
+                            <path d="M82 68C92 71 102 70 107 67" stroke="#E07A5F" stroke-width="7" stroke-linecap="round"/>
+                            <path d="M86 69L78 88" stroke="#E07A5F" stroke-width="6" stroke-linecap="round"/>
+                            <!-- Little Envelope in Wing -->
+                            <rect x="92" y="104" width="28" height="20" rx="3" fill="#F4D03F" stroke="#2C3E50" stroke-width="2.2"/>
+                            <path d="M92 105L106 115L120 105" stroke="#2C3E50" stroke-width="2" stroke-linecap="round"/>
+                            <!-- Feet -->
+                            <path d="M84 138V152H94M104 138V152H114" stroke="#E07A5F" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                        <span class="font-hand text-lg text-inkMuted mt-2 text-center">“Special delivery for <span class="recipient-name-display">မျက်ဝန်းညိုလေး</span>!”</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =========================================================
+         3. INTERACTIVE SHORT LETTERS BOOKLET (CHAPTER CAROUSEL)
+         ========================================================= -->
+        <section id="chapters" class="scroll-mt-24">
+            <div class="text-center mb-6">
+                <span class="inline-block px-3.5 py-1 rounded-full bg-skyAccent/25 text-ink font-sansUi text-xs font-bold uppercase tracking-widest mb-2">
+                    Little Chapters of Friendship
+                </span>
+                <h2 class="font-serifTitle font-bold text-3xl sm:text-4xl text-ink">
+                    Seven Short Letters for <span class="recipient-name-display text-coral">မျက်ဝန်းညိုလေး</span>
+                </h2>
+                <p class="font-sansUi text-sm text-inkMuted mt-1">
+                    Flip through the booklet pages or tap any chapter pill below
+                </p>
+            </div>
+
+            <!-- Chapter Selector Pills + View Toggle -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mb-5 no-print">
+                <div id="chapter-pills" class="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto py-1 px-1">
+                    <!-- Populated dynamically by JS -->
+                </div>
+
+                <button id="toggle-view-btn" onclick="toggleBookView()" class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-paper border border-ink/15 hover:border-coral text-ink font-sansUi text-xs font-bold shadow-sm transition cursor-pointer">
+                    <svg class="w-4 h-4 text-coral" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <span id="toggle-view-label">Read All Pages</span>
+                </button>
+            </div>
+
+            <!-- Single Booklet Reader Card (Interactive Flip View) -->
+            <div id="booklet-reader-container" class="vintage-card book-spine rounded-3xl shadow-book border-2 border-skySoft/80 p-6 sm:p-10 md:p-12 transition-all">
+                <div id="chapter-card-content" class="page-transition">
+                    <!-- Header Row -->
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-dashed border-ink/15 pb-4 mb-6">
+                        <div class="flex items-center gap-3">
+                            <span id="chapter-badge" class="px-3.5 py-1 rounded-full bg-coral text-white font-sansUi text-xs font-bold tracking-wider uppercase">
+                                Chapter 01
+                            </span>
+                            <span id="chapter-tag" class="font-sansUi text-xs font-semibold text-inkMuted">
+                                • အပြိုင်းအရိုင်း
+                            </span>
+                        </div>
+                        <span id="chapter-counter" class="font-sansUi text-xs font-bold text-inkMuted bg-paperDark px-3 py-1 rounded-full">
+                            Page 1 of 7
+                        </span>
+                    </div>
+
+                    <!-- Content Grid: Illustration + Letter Text -->
+                    <div class="grid md:grid-cols-12 gap-8 items-start">
+                        <!-- Left Cute Duck Illustration Box -->
+                        <div class="md:col-span-5 flex flex-col items-center">
+                            <div id="chapter-illustration" class="w-full max-w-[230px] aspect-square rounded-2xl bg-paperDark/70 border border-skySoft p-4 flex items-center justify-center shadow-inner">
+                                <!-- Dynamic SVG injected here -->
+                            </div>
+                            <p id="chapter-caption" class="font-hand text-xl text-inkMuted text-center mt-3 whitespace-pre-line leading-relaxed">
+                                <!-- Dynamic caption injected here -->
+                            </p>
+                        </div>
+
+                        <!-- Right Poetic Letter Body -->
+                        <div class="md:col-span-7 flex flex-col justify-between min-h-[260px]">
+                            <div>
+                                <h3 id="chapter-title" class="font-serifTitle font-bold text-2xl sm:text-3xl text-ink mb-4">
+                                    အပြိုင်းအရိုင်း
+                                </h3>
+                                <div id="chapter-body" class="letter-lines font-serifBody text-base sm:text-[17px] text-ink/90 whitespace-pre-line">
+                                    <!-- Dynamic letter text -->
+                                </div>
+                            </div>
+
+                            <!-- Signature Footer -->
+                            <div class="mt-8 pt-4 border-t border-skySoft/60 flex items-center justify-between">
+                                <span class="font-sansUi text-xs uppercase tracking-widest text-inkMuted">With affection,</span>
+                                <span class="font-hand text-3xl text-coral font-bold sender-name-display">Your ဘဲရုပ်ဆိုးလေး</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Page-Flip Controls -->
+                <div class="mt-8 pt-6 border-t border-ink/10 flex items-center justify-between gap-4 no-print">
+                    <button id="prev-chapter-btn" onclick="changeChapter(-1)" class="inline-flex items-center gap-2 px-5 py-3 rounded-full bg-paperDark hover:bg-skySoft/40 disabled:opacity-40 disabled:pointer-events-none text-ink font-sansUi text-sm font-bold transition cursor-pointer">
+                        <span>←</span>
+                        <span>Previous</span>
+                    </button>
+
+                    <!-- Progress Dots -->
+                    <div id="chapter-dots" class="hidden sm:flex items-center gap-2"></div>
+
+                    <button id="next-chapter-btn" onclick="changeChapter(1)" class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-skyAccent hover:bg-skyAccent/80 text-ink font-sansUi text-sm font-bold shadow-sm transition cursor-pointer">
+                        <span>Next Letter</span>
+                        <span>→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Full Scroll View (Hidden by default, toggled via "Read All Pages" or Print) -->
+            <div id="all-letters-grid" class="hidden space-y-8 mt-6">
+                <!-- Populated dynamically when toggled -->
+            </div>
+        </section>
+
+        <!-- =========================================================
+         4. BACK COVER / INTERACTIVE BIRTHDAY WISH & CANDLE BLOW
+         ========================================================= -->
+        <section id="wish" class="scroll-mt-24 pb-12">
+            <div class="vintage-card book-spine rounded-3xl shadow-book border-2 border-coral/40 p-6 sm:p-12 text-center relative overflow-hidden">
+                <span class="inline-block px-4 py-1 rounded-full bg-coral/15 text-coral font-sansUi text-xs font-bold uppercase tracking-widest mb-4">
+                    Back Cover • Make A Wish
+                </span>
+
+                <h2 class="font-serifTitle font-bold text-3xl sm:text-4xl text-ink mb-3">
+                    Blow Out Your Birthday Candle!
+                </h2>
+                <p class="font-serifBody text-base text-inkMuted max-w-lg mx-auto mb-6">
+                    Close your eyes, make a wish for the year ahead, and tap the cake below to celebrate!
+                </p>
+
+                <!-- Interactive Birthday Cake & Ducklings SVG -->
+                <div class="max-w-xs mx-auto my-4">
+                    <button id="cake-button" onclick="blowCandle()" class="group relative mx-auto block focus:outline-none cursor-pointer" title="Tap to blow out candle & celebrate!">
+                        <svg viewBox="0 0 240 210" class="w-56 h-48 mx-auto transition transform group-hover:scale-105" fill="none">
+                            <!-- Soft Glow Behind Cake -->
+                            <circle id="wish-glow" cx="120" cy="85" r="65" fill="#F4D03F" fill-opacity="0.28"/>
+
+                            <!-- Candle Stick -->
+                            <rect x="114" y="54" width="12" height="34" rx="4" fill="#89CFF0" stroke="#2C3E50" stroke-width="2.5"/>
+                            <path d="M114 64L126 70M114 74L126 80" stroke="#FAF8F3" stroke-width="2"/>
+
+                            <!-- Animated Candle Flame -->
+                            <g id="candle-flame-group" class="candle-flame">
+                                <path d="M120 26C120 26 130 38 130 45C130 50.5 125.5 54 120 54C114.5 54 110 50.5 110 45C110 38 120 26 120 26Z" fill="#F4D03F" stroke="#E07A5F" stroke-width="2"/>
+                                <path d="M120 35C120 35 125 42 125 46C125 48.8 122.8 51 120 51C117.2 51 115 48.8 115 46C115 42 120 35 120 35Z" fill="#FFFDF9"/>
+                            </g>
+
+                            <!-- Smoke Puffs (Shown after blowing candle) -->
+                            <g id="candle-smoke" class="opacity-0 transition-opacity duration-700">
+                                <path d="M120 48C116 40 124 34 119 26" stroke="#85929E" stroke-width="2.5" stroke-linecap="round"/>
+                                <circle cx="123" cy="20" r="2.5" fill="#85929E"/>
+                            </g>
+
+                            <!-- Top Cake Tier -->
+                            <rect x="74" y="88" width="92" height="36" rx="10" fill="#FFFDF9" stroke="#2C3E50" stroke-width="3"/>
+                            <!-- Coral Frosting Drip -->
+                            <path d="M74 98C82 106 90 96 98 104C106 112 114 96 122 104C130 112 138 96 146 104C154 110 160 102 166 98V94C166 90 162 88 158 88H82C78 88 74 90 74 94V98Z" fill="#E07A5F"/>
+
+                            <!-- Bottom Cake Tier -->
+                            <rect x="54" y="124" width="132" height="44" rx="12" fill="#F4D03F" stroke="#2C3E50" stroke-width="3"/>
+                            <path d="M54 146H186" stroke="#FAF8F3" stroke-width="4" stroke-dasharray="8 6"/>
+
+                            <!-- Cake Plate -->
+                            <ellipse cx="120" cy="172" rx="84" ry="10" fill="#B0E0E6" stroke="#2C3E50" stroke-width="2.5"/>
+                        </svg>
+                        <span id="candle-prompt" class="inline-block mt-1 px-4 py-1.5 rounded-full bg-mustard/40 text-ink font-sansUi text-xs font-bold border border-mustard">
+                            🕯️ Tap the Cake to Blow Candle
+                        </span>
+                    </button>
+                </div>
+
+                <!-- Final Closing Keepsake Badge -->
+                <div class="mt-8 max-w-md mx-auto bg-paperDark/80 rounded-2xl p-6 border border-skySoft">
+                    <p id="final-wish-text" class="font-serifBody italic text-base sm:text-lg text-ink leading-relaxed mb-4">
+                        <!-- Populated dynamically -->
+                    </p>
+                    <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-paper border border-ink/15 shadow-sm">
+                        <span class="text-xl">🦆</span>
+                        <div class="text-left">
+                            <div class="font-sansUi text-[10px] uppercase tracking-widest text-inkMuted">Forever Your ဘဲရုပ်ဆိုးလေး</div>
+                            <div class="font-hand text-2xl font-bold text-coral leading-none sender-name-display">Your ဘဲရုပ်ဆိုးလေး</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="mt-8 flex flex-wrap items-center justify-center gap-3 no-print">
+                    <button onclick="launchConfetti()" class="px-5 py-2.5 rounded-full bg-skyAccent/30 hover:bg-skyAccent/50 text-ink font-sansUi text-xs font-bold border border-skyAccent transition cursor-pointer">
+                        🎉 Shower Confetti
+                    </button>
+                    <button onclick="window.print()" class="px-5 py-2.5 rounded-full bg-paper hover:bg-paperDark text-ink font-sansUi text-xs font-bold border border-ink/15 transition cursor-pointer">
+                        🖨️ Print / Save as PDF
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Floating "Edit & Personalize" Button -->
+    <button onclick="openCustomizeModal()" class="fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 px-5 py-3.5 rounded-full bg-ink hover:bg-ink/90 text-paper font-sansUi text-sm font-bold shadow-xl hover:scale-105 transition cursor-pointer no-print">
+        <span>✎</span>
+        <span>Edit & Personalize</span>
+    </button>
+
+    <!-- =========================================================
+       CUSTOMIZE / PERSONALIZE MODAL DRAWER
+       ========================================================= -->
+    <div id="customize-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-ink/50 backdrop-blur-sm no-print">
+        <div class="bg-paper rounded-3xl shadow-2xl border-2 border-skySoft w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-paperDark border-b border-skySoft/70 flex items-center justify-between">
+                <div>
+                    <h3 class="font-serifTitle font-bold text-xl text-ink">Personalize Your Birthday Book</h3>
+                    <p class="font-sansUi text-xs text-inkMuted">Customize names, prologue, and short letters</p>
+                </div>
+                <button onclick="closeCustomizeModal()" class="w-9 h-9 rounded-full bg-paper hover:bg-coral/20 text-ink flex items-center justify-center font-bold transition cursor-pointer">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Scrollable Form Body -->
+            <div class="p-6 overflow-y-auto space-y-6 font-sansUi text-sm">
+                <!-- Names & Date -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-inkMuted mb-1">Friend's Name</label>
+                        <input id="input-recipient" type="text" value="မျက်ဝန်းညိုလေး" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-semibold text-ink" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-inkMuted mb-1">Your Name</label>
+                        <input id="input-sender" type="text" value="Your ဘဲရုပ်ဆိုးလေး" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-semibold text-ink" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-inkMuted mb-1">Birthday Date Label</label>
+                        <input id="input-date" type="text" value="November 25 • Special Day" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-semibold text-ink" />
+                    </div>
+                </div>
+
+                <!-- Prologue Note -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-inkMuted mb-1">Opening Prologue Note</label>
+                    <textarea id="input-prologue" rows="4" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-serifBody text-sm text-ink leading-relaxed"></textarea>
+                </div>
+
+                <!-- Chapter Selector for Editing -->
+                <div class="bg-paperDark/70 p-4 rounded-2xl border border-skySoft space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold uppercase tracking-wider text-ink">Edit Short Letter Chapter</label>
+                        <select id="edit-chapter-select" onchange="loadChapterIntoEditor()" class="px-3 py-1.5 rounded-lg bg-white border border-ink/15 text-xs font-bold text-ink focus:outline-none">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-inkMuted mb-1">Tag / Subtitle</label>
+                            <input id="input-chapter-tag" type="text" class="w-full px-3 py-2 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-sansUi font-semibold text-ink" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-inkMuted mb-1">Chapter Title</label>
+                            <input id="input-chapter-title" type="text" class="w-full px-3 py-2 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-serifTitle font-bold text-ink" />
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-inkMuted mb-1">Illustration Caption</label>
+                        <textarea id="input-chapter-caption" rows="2" class="w-full px-3 py-2 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-hand text-lg text-ink"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-inkMuted mb-1">Letter Message</label>
+                        <textarea id="input-chapter-body" rows="5" class="w-full px-3 py-2 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-serifBody text-sm text-ink leading-relaxed"></textarea>
+                    </div>
+                    <button type="button" onclick="saveCurrentEditedChapter()" class="px-4 py-2 rounded-xl bg-skyAccent/40 hover:bg-skyAccent/60 text-ink font-bold text-xs transition cursor-pointer">
+                        ✓ Update This Chapter
+                    </button>
+                </div>
+
+                <!-- Final Wish -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-inkMuted mb-1">Back Cover Birthday Wish</label>
+                    <textarea id="input-final-wish" rows="2" class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-ink/15 focus:border-coral focus:outline-none font-serifBody text-sm text-ink"></textarea>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 bg-paperDark border-t border-skySoft/70 flex items-center justify-between gap-3">
+                <button onclick="resetToDefaults()" class="text-xs font-bold text-inkMuted hover:text-coral underline cursor-pointer">
+                    Reset Default Text
+                </button>
+                <div class="flex items-center gap-2">
+                    <button onclick="closeCustomizeModal()" class="px-4 py-2.5 rounded-full bg-paper border border-ink/15 text-ink font-bold text-xs cursor-pointer">
+                        Cancel
+                    </button>
+                    <button onclick="applyCustomizations()" class="px-6 py-2.5 rounded-full bg-coral hover:bg-coral/90 text-white font-bold text-xs shadow-md cursor-pointer">
+                        Save & Apply ✨
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =========================================================
+       JAVASCRIPT: DATA, SVG ILLUSTRATIONS, BOOKLET & INTERACTIONS
+       ========================================================= -->
+    <script>
+        const STORAGE_KEY = "ann_birthday_book_v3";
+
+        // Custom inline SVG illustrations
+        const DUCK_ILLUSTRATIONS = {
+            ducklingFlower: `
+                <svg viewBox="0 0 180 180" class="w-full h-full" fill="none">
+                    <circle cx="90" cy="92" r="70" fill="#B0E0E6" fill-opacity="0.35"/>
+                    <path d="M62 115C52 115 48 128 56 140C64 152 84 156 100 156C118 156 132 146 134 132C136 122 128 114 120 110C124 102 126 92 126 82C126 60 112 44 95 44C78 44 64 60 64 82C64 94 67 104 71 111C68 112 65 113 62 115Z" fill="#F4D03F" stroke="#2C3E50" stroke-width="3"/>
+                    <ellipse cx="76" cy="88" rx="6" ry="4" fill="#E07A5F" fill-opacity="0.6"/>
+                    <ellipse cx="114" cy="88" rx="6" ry="4" fill="#E07A5F" fill-opacity="0.6"/>
+                    <circle cx="83" cy="78" r="3.5" fill="#2C3E50"/>
+                    <circle cx="107" cy="78" r="3.5" fill="#2C3E50"/>
+                    <path d="M88 85C88 82 102 82 102 85C102 89 98 92 95 92C92 92 88 89 88 85Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="2.5"/>
+                    <!-- Daisy -->
+                    <line x1="128" y1="128" x2="144" y2="95" stroke="#588157" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="144" cy="90" r="11" fill="#FFFDF9" stroke="#2C3E50" stroke-width="2"/>
+                    <circle cx="144" cy="90" r="4.5" fill="#F4D03F"/>
+                    <path d="M80 156V166H90M108 156V166H118" stroke="#E07A5F" stroke-width="3" stroke-linecap="round"/>
+                </svg>`,
+
+            gooseTea: `
+                <svg viewBox="0 0 180 180" class="w-full h-full" fill="none">
+                    <ellipse cx="92" cy="148" rx="68" ry="18" fill="#89CFF0" fill-opacity="0.45"/>
+                    <ellipse cx="136" cy="140" rx="14" ry="6" fill="#74A892"/>
+                    <path d="M136 138C130 128 134 120 136 118C138 120 142 128 136 138Z" fill="#E07A5F"/>
+                    <path d="M136 138C126 132 126 124 130 122C133 124 135 130 136 138Z" fill="#F4A261"/>
+                    <path d="M136 138C146 132 146 124 142 122C139 124 137 130 136 138Z" fill="#F4A261"/>
+                    <path d="M58 135C44 135 38 120 44 106C49 94 64 90 70 84C72 68 68 50 72 38C75 28 86 24 94 29C101 33 101 44 95 49C90 54 90 72 95 88C108 92 116 104 112 120C108 134 86 135 58 135Z" fill="#FFFDF9" stroke="#2C3E50" stroke-width="3"/>
+                    <path d="M97 35L112 38L98 43Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="2.2" stroke-linejoin="round"/>
+                    <circle cx="88" cy="36" r="2.5" fill="#2C3E50"/>
+                    <path d="M70 58C80 61 89 60 94 57" stroke="#E07A5F" stroke-width="7" stroke-linecap="round"/>
+                    <path d="M74 59L66 78" stroke="#E07A5F" stroke-width="6" stroke-linecap="round"/>
+                    <rect x="102" y="84" width="22" height="24" rx="4" fill="#F4D03F" stroke="#2C3E50" stroke-width="2.5"/>
+                    <path d="M124 89C130 89 130 101 124 101" stroke="#2C3E50" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M109 76C107 71 112 68 110 63M117 76C115 71 120 68 118 63" stroke="#85929E" stroke-width="2" stroke-linecap="round"/>
+                </svg>`,
+
+            pirateDuck: `
+                <svg viewBox="0 0 180 180" class="w-full h-full" fill="none">
+                    <circle cx="90" cy="92" r="70" fill="#F4D03F" fill-opacity="0.22"/>
+                    <path d="M52 122C42 122 36 112 40 102C45 92 64 92 76 92C78 78 76 62 84 52C92 42 108 44 114 54C120 64 114 78 110 88C124 92 140 104 136 122C132 138 96 140 66 136C58 135 54 128 52 122Z" fill="#D4A373" stroke="#2C3E50" stroke-width="3"/>
+                    <path d="M76 90C88 92 102 90 110 88C114 102 112 118 106 132C94 134 80 132 72 128C70 114 72 100 76 90Z" fill="#FFFDF9" stroke="#2C3E50" stroke-width="2.5"/>
+                    <path d="M74 100H111M72 110H111M72 120H109" stroke="#E07A5F" stroke-width="3"/>
+                    <path d="M80 68C78 54 88 42 102 44C114 46 120 58 114 70C108 80 84 80 80 68Z" fill="#588157" stroke="#2C3E50" stroke-width="2.8"/>
+                    <path d="M81 54C88 43 108 43 115 54Z" fill="#2C3E50"/>
+                    <circle cx="95" cy="49" r="1.5" fill="#FFFDF9"/>
+                    <circle cx="103" cy="49" r="1.5" fill="#FFFDF9"/>
+                    <path d="M114 58L136 55C139 58 138 64 133 65L113 66Z" fill="#F4D03F" stroke="#2C3E50" stroke-width="2.5" stroke-linejoin="round"/>
+                    <circle cx="105" cy="57" r="2.8" fill="#FFFDF9"/>
+                    <circle cx="106" cy="57" r="1.5" fill="#2C3E50"/>
+                    <path d="M66 108V120M61 112H71M60 117C62 121 70 121 72 117" stroke="#2C3E50" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M84 138V152H96M104 138V152H116" stroke="#F4D03F" stroke-width="3.5" stroke-linecap="round"/>
+                </svg>`,
+
+            duckComputer: `
+                <svg viewBox="0 0 180 180" class="w-full h-full" fill="none">
+                    <rect x="26" y="102" width="84" height="10" rx="3" fill="#D4A373" stroke="#2C3E50" stroke-width="2.5"/>
+                    <path d="M36 112V150M98 112V150" stroke="#2C3E50" stroke-width="3" stroke-linecap="round"/>
+                    <rect x="38" y="54" width="54" height="38" rx="5" fill="#FFFDF9" stroke="#2C3E50" stroke-width="2.8"/>
+                    <rect x="44" y="60" width="42" height="24" rx="2" fill="#89CFF0" fill-opacity="0.35"/>
+                    <path d="M62 72L65 75L71 68" stroke="#E07A5F" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M65 92V102M54 102H76" stroke="#2C3E50" stroke-width="2.8" stroke-linecap="round"/>
+                    <circle cx="128" cy="96" r="24" fill="#F4D03F" stroke="#2C3E50" stroke-width="3"/>
+                    <ellipse cx="128" cy="128" rx="22" ry="20" fill="#F4D03F" stroke="#2C3E50" stroke-width="3"/>
+                    <ellipse cx="115" cy="100" rx="5" ry="3.5" fill="#E07A5F" fill-opacity="0.6"/>
+                    <circle cx="120" cy="92" r="2.8" fill="#2C3E50"/>
+                    <circle cx="134" cy="92" r="2.8" fill="#2C3E50"/>
+                    <ellipse cx="126" cy="99" rx="6" ry="3.5" fill="#E07A5F" stroke="#2C3E50" stroke-width="2"/>
+                    <path d="M98 42C98 38 103 36 106 40C109 36 114 38 114 42C114 47 106 52 106 52C106 52 98 47 98 42Z" fill="#E07A5F"/>
+                </svg>`,
+
+            duckStars: `
+                <svg viewBox="0 0 180 180" class="w-full h-full" fill="none">
+                    <circle cx="90" cy="90" r="68" fill="#2C3E50" fill-opacity="0.08"/>
+                    <path d="M124 44C116 44 110 50 110 58C110 66 116 72 124 72C127 72 130 71 132 69C126 68 121 63 121 57C121 51 126 46 132 45C130 44 127 44 124 44Z" fill="#F4D03F" stroke="#2C3E50" stroke-width="2.2"/>
+                    <path d="M52 52L54 57L59 59L54 61L52 66L50 61L45 59L50 57L52 52Z" fill="#F4D03F"/>
+                    <path d="M138 82L139.5 85.5L143 87L139.5 88.5L138 92L136.5 88.5L133 87L136.5 85.5L138 82Z" fill="#89CFF0"/>
+                    <path d="M46 134C40 134 36 129 36 124C36 119 40 115 45 115C47 108 54 104 62 106C67 101 76 101 82 106C88 103 97 105 101 111C107 111 112 116 112 122C112 129 106 134 99 134H46Z" fill="#FFFDF9" stroke="#2C3E50" stroke-width="2.5"/>
+                    <circle cx="76" cy="92" r="22" fill="#F4D03F" stroke="#2C3E50" stroke-width="2.8"/>
+                    <path d="M66 90C68 92 71 92 73 90M81 90C83 92 86 92 88 90" stroke="#2C3E50" stroke-width="2.3" stroke-linecap="round"/>
+                    <ellipse cx="77" cy="97" rx="5" ry="3" fill="#E07A5F" stroke="#2C3E50" stroke-width="2"/>
+                </svg>`,
+
+            twinGeese: `
+                <svg viewBox="0 0 180 180" class="w-full h-full" fill="none">
+                    <circle cx="90" cy="92" r="70" fill="#89CFF0" fill-opacity="0.22"/>
+                    <path d="M46 146V102C46 88 54 80 64 80C73 80 78 88 78 98V146" fill="#FFFDF9" stroke="#2C3E50" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M76 92L90 95L76 99Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="2"/>
+                    <circle cx="68" cy="90" r="2.5" fill="#2C3E50"/>
+                    <path d="M134 146V102C134 88 126 80 116 80C107 80 102 88 102 98V146" fill="#FFFDF9" stroke="#2C3E50" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M104 92L90 95L104 99Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="2"/>
+                    <circle cx="112" cy="90" r="2.5" fill="#2C3E50"/>
+                    <path d="M80 56C80 50 87 47 90 53C93 47 100 50 100 56C100 64 90 71 90 71C90 71 80 64 80 56Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="2"/>
+                </svg>`,
+
+            duckCrown: `
+                <svg viewBox="0 0 180 180" class="w-full h-full" fill="none">
+                    <circle cx="90" cy="94" r="70" fill="#F4D03F" fill-opacity="0.25"/>
+                    <path d="M74 52L78 36L90 45L102 36L106 52H74Z" fill="#F4D03F" stroke="#2C3E50" stroke-width="2.5" stroke-linejoin="round"/>
+                    <circle cx="78" cy="34" r="2.5" fill="#E07A5F"/>
+                    <circle cx="90" cy="42" r="2.5" fill="#89CFF0"/>
+                    <circle cx="102" cy="34" r="2.5" fill="#E07A5F"/>
+                    <path d="M62 120C52 120 48 132 56 144C64 156 84 160 100 160C118 160 132 150 134 136C136 126 128 118 120 114C124 106 126 96 126 86C126 66 112 52 95 52C78 52 64 66 64 86C64 98 67 108 71 115C68 116 65 117 62 120Z" fill="#F4D03F" stroke="#2C3E50" stroke-width="3"/>
+                    <ellipse cx="76" cy="92" rx="6" ry="4" fill="#E07A5F" fill-opacity="0.6"/>
+                    <ellipse cx="114" cy="92" rx="6" ry="4" fill="#E07A5F" fill-opacity="0.6"/>
+                    <circle cx="83" cy="82" r="3.5" fill="#2C3E50"/>
+                    <circle cx="107" cy="82" r="3.5" fill="#2C3E50"/>
+                    <path d="M88 89C88 86 102 86 102 89C102 93 98 96 95 96C92 96 88 93 88 89Z" fill="#E07A5F" stroke="#2C3E50" stroke-width="2.5"/>
+                    <path d="M80 160V168H90M108 160V168H118" stroke="#E07A5F" stroke-width="3" stroke-linecap="round"/>
+                </svg>`
+        };
+
+        // Your 7 Custom Burmese Chapters
+        const DEFAULT_CHAPTERS = [{
+            id: 1,
+            tag: "အပြိုင်းအရိုင်း",
+            title: "အပြိုင်းအရိုင်း",
+            illustration: "ducklingFlower",
+            caption: "“မင်းနားဝဲတဲ့ ပျားလေးပဲဖြစ်ချင်တာ\nခြင်ကြီးတော့မဖြစ်ချင်ဘူး”",
+            body: `တစ်နေ့တော့…
+အပြိုင်းအရိုင်းပေါက်နေတဲ့
+ဂန္ဓမာပန်းတောထဲ
+မျက်ဝန်းညိုလေးနဲ့တူတူ
+ပြေးလွှားခုန်ပေါက်ပါဦးမယ်။
+ပြီးရင် မျက်ဝန်းညိုလေးကိုပြောပြမယ်။
+မျက်ဝန်းညိုလေးရယ် ဂန္ဓမာပန်းတွေ
+အပြိုင်းအရိုင်းပေါက်နေတာလောက်ကတော့
+အစ်ကိုက သနားတာပေါ့။
+မျက်ဝန်းညို‌လေးကြောင့်
+ကျွန်တော်ရဲ့အချစ်ဆဲလ်တွေ
+အပြိုင်းအရိုင်းပေါက်လာတာနဲ့ယှဉ်ရင်
+ဂန္ဓမာပန်းခင်းကြီးရှုံးသွားမှာ။
+ပြီးရင်တော့ အစ်ကိုက စကားတတ်လိုက်တဲ့
+၁၉ နှစ်ကလေးလေးဆိုပြီး
+အပြိုင်းအရိုင်း အကြင်နာတွေ ပေးမယ်။
+ဟဲဟဲ...။`
+        }, {
+            id: 2,
+            tag: "ဒုကလှလှလေး",
+            title: "ဒုကလှလှလေး",
+            illustration: "gooseTea",
+            caption: "“ချိုမြိန်နေသော ဒုက္ခလေး”",
+            body: `မတွေ့ဖူးသောသူ
+မကြားဖူးသောသူ
+မထိဖူးသောသူ
+မကိုင်ဖူးသောသူ
+မနမ်းရှိုက်ဖူးသောသူကို
+လွမ်းမိသည်ကား ဖြစ်နိုင်ပါ့မလား။
+သတိရမိသည်ကား ဖြစ်နိုင်ပါ့မလား….။
+ဘုရား ဘုရား သိပ်ကိုကြောက်ဖို့ကောင်းတဲ့ကိလေသာတွေပါလား။
+မစားရ နေနိုင်မည်ထင်ပါသည်။
+မသောက်ရ နေနိုင်မည်ထင်ပါသည်။
+စာတစ်ကြောင်းမပို့ရဘဲတော့ မနေနိုင်ပါ။
+ကိုယ်တိုင်ရှာတဲ့ သိမ်မွေ့သော ဒုက္ခလှလှလေးမှာ ရစ်မူးနေပြီ။
+မကယ်ပါနဲ့တော့။`
+        }, {
+            id: 3,
+            tag: "အရူး",
+            title: "အရူး",
+            illustration: "pirateDuck",
+            caption: "“Whether calm seas or silly waves, we’ll laugh through it all.”",
+            body: `အရူးတွေဆိုတဲ့စကားရှိတယ်…။
+အောက်ဆီဂျင်ထက် မင်းကိုပိုလိုအပ်တယ်တဲ့။
+လွန်ခဲ့သောနှစ်တွေတုန်းက အဓိပ္ပါယ်မရှိသော စာအစုလို့ ကျွန်တော်မြင်ခဲ့တာ။
+ဘယ့်နှယ် စာမတတ်ပေမတတ်၊ အောက်ဆီဂျင်မရှိဘဲ လူဆိုတာဘယ်လို အသက်ရှင်မှာလဲ ကျွန်တော် ဝေဖန်ခဲ့ဖူး၏။
+အခုတော့ ကျွန်တော်သည်လည်း ထိုအရူးတွေထဲက တစ်ယောက်ပါပဲ။
+အကြောင်းအရင်းကိုမေးလျှင်တော့ မျက်ဝန်းညိုလေးကိုလက်ညှိုးထိုးပြလိုက်ပါမယ်။
+အောက်ဆီဂျင်က အသက်ရှင်သန်ဖို့ အသက်ရှူနိုင်ဖို့ပဲ ကူညီပေးတာပါ။
+မျက်ဝန်းညိုလေးကတော့ အသက်ရှင်သန်ဖို့ ခန္ဓာကိုယ်တစ်ခုလုံးရဲ့ လုပ်ငန်းဆောင်တာတွေလည်ပတ်ဖို့ လိုအပ်တာပါ။
+တစ်ချိန်ဒီစာကို အခြားသူတွေမြင်လျှင် တော်တော်ရူးတဲ့အရူးဟု ကောက်ချက်ချနိုင်ချေရှိပါတယ်။
+ကျွန်တော်တော့ ဂရုမစိုက်ပေါင်
+သူတို့မှ မျက်ဝန်းညိုလေးကို မရူးဖူးတာ ဘယ်စာနာနိုင်ပါ့မလဲ…။`
+        }, {
+            id: 4,
+            tag: "ကွန်ပျူတာလိုအချစ်",
+            title: "ကွန်ပျူတာလိုအချစ်",
+            illustration: "duckComputer",
+            caption: "“ကျွန်တော်က Programmer လေ error တွေထက် ၊ မျက်ဝန်းညိုလေးငြိုငြင်မှာပဲကြောက်တယ်”",
+            body: `ကွန်ပျူတာသိပ္ပံ ကျောင်းသားကြီး ခင်ဗျာ့၊
+ခင်ဗျားရဲ့ hard disk ထဲမှာ ကျွန်တော့်ကို save ထားပေးလို့ရမလား။
+ကျွန်တော်တစ်ယောက်ထဲကိုပဲ သီးသန့် Access ပေးပါလား ဘယ်သူ့ကိုမှ မ share ဘဲနဲ့လေ၊
+ကျွန်တော့် Gmail နဲ့အတူ အချစ်တွေ ပို့ပေးပါမယ်။
+လွမ်းဆွတ်မှုတွေ Loading ဖြစ်လာတိုင်း၊
+မျက်ဝန်းညိုလေးရဲ့ ပို့ဖူးတဲ့ ပုံနည်းနည်းလေးနဲ့မှ Refresh ပြန်ဖြစ်ရတဲ့ကောင်မို့၊
+ဘဝမှာ ဘယ်လို Error တွေပဲ ကြုံလာပါစေ၊ မျက်ဝန်းညိုလေး
+လက်ကို ဆုပ်ကိုင်ထားရင် အရာရာ Fixed ဖြစ်သွားမယ်ထင်ပါတယ်။
+အတိတ်က နာကျင်မှုတွေအားလုံးကို Delete လုပ်ပြီး၊ မျက်ဝန်းညိုလေးနဲ့အတူ ဖြတ်သန်းမယ့် အနာဂတ်ကိုပဲ Update တင်ချင်တယ်။
+ကျွန်တော့်ရဲ့ နှလုံးသား System တစ်ခုလုံးကို Restart ပြန်ချရင်တောင် မျက်ဝန်းညိုလေးဆိုတဲ့ နာမည်လေးပဲ Default ပေါ်နေမှာပါ။`
+        }, {
+            id: 5,
+            tag: "အိပ်မက်လှလှ",
+            title: "အိပ်မက်လှလှ",
+            illustration: "duckStars",
+            caption: "“Dream Catcher လား သနားတာပေါ့”",
+            body: `အိမ်မက်လှလှလေးတွေဆို အင်မတန်ကိုမှပြန်မက်ချင်ပါတယ်။
+ဒါပေမယ့် ဆရာမဂျူးရဲ့ အမှတ်တရစာအုပ်ထဲကဆိုသလို အိမ်မက်လှလှလေးတွေ ပြန်မက်ဖို့ဆိုတာ ခက်သကို့။
+လက်တွေ့ဘဝမှာမျက်ဝန်းညို‌လေးရှိနေပေမယ့် ကျွန်တော့်ရဲ့ အိမ်မက်ထဲမှာလည်း မျက်ဝန်းညို‌‌လေးရှိစေချင်သည်။
+မျက်ဝန်းညိုလေးအကြောင်းသာ ကျွန်တော့်အိမ်မက်ထဲ စိုးမိုးစေချင်သည်။
+အိမ်မက်လှလှရဲ့ အဓိပ္ပါယ်ဖွင့်ဆိုချက်ကို မျက်ဝန်းညိုလေးမပါသော အိမ်မက်ဟု ကျွန်တော့်ရဲ့ အဘိဓာန်ထဲမှာရေးထိုးထားသည်။
+ဘယ်လောက်ခက်ခက်ပေါ့ ဆရာမဂျူးလို့တော့ ကျွန်တော် သင်ခန်းစာမရနိုင်သေးပါ။
+တစ်ချို့ညတွေဆို မျက်ဝန်းညို‌‌လေးအကြောင်း မက်လုမက်လုနဲ့လင်းသွားတဲ့ အခေါက်ပေါင်းများစွာ။
+ဝမ်းနည်းပါတယ် အဲ့လိုအိမ်မက်လှလှလေး
+မမက်တဲ့ အခေါက်တိုင်း…..။`
+        }, {
+            id: 6,
+            tag: "အဇ္ဈတ္တ",
+            title: "အဇ္ဈတ္တ",
+            illustration: "twinGeese",
+            caption: "“ဘုရားနှစ်ပါးကယ်ပါ”",
+            body: `တစ်ခါတစ်လေ မျက်ဝန်းညိုလေးကို အရမ်းတောင့်တမိတဲ့အခါ လောဘစိတ်ကို
+ကျွန်တော့်ရဲ့သတိနဲ့ပြန်ထိန်းနေရတယ်အစ်ကို။
+အထူးသဖြင့် "ဟွန့်" ဆိုတဲ့ စာလေးမြင်ရင်ပေါ့။
+မျက်ဝန်းညိုလေးရဲ့ အဆက်ဟောင်းတွေအကြောင်း ကြားရတဲ့အခါ ဖြစ်ပေါ်လာတဲ့ ဒေါသစိတ်ကို
+ကျွန်တော့်ရဲ့ မာန နဲ့ပြန်ထိန်းနေရတယ်အစ်ကို။
+အထူးသဖြင့် Smartဖြစ်တဲ့ဟိုတစ်ယောက်နဲ့ပတ်သက်လာရင်ပေါ့။
+မျက်ဝန်းညိုလေး နဲ့ ပတ်သက်လာရင် မောဟသိပ်များရတယ်။
+အမှားအမှန်ကိုမခွဲခြားနိုင်တော့ဘဲ တွေဝေတိမ်းကောနေလိုက်တာ ကျွန်တော်မဟုတ်တဲ့အတိုင်းပါပဲ။
+တစ်ခါတစ်လေတော့လည်း မျက်ဝန်းညိုလေးကိုမေတ္တာပို့ပေးဖြစ်ပါတယ်။
+မျက်ဝန်းညိုလေး ပျော်ရွှင်နေရတဲ့အခါ ဝမ်းသာပီတိ ထပ်တူ ဖြစ်ရပါတယ်။
+မျက်ဝန်းညိုလေးဆီ အဆင်မပြေမှုတွေရှိလာရင်လည်း ကျွန်တော်က ကရုဏာသက်မိပြန်ရော။
+တရားစကားနဲ့ဆိုရလျှင်မျက်ဝန်းညိုလေးကို‌ တောင့်တရတာ အဇ္ဈတ္တ တိုက်ပွဲဝင်နေရသလိုပါပဲ..။`
+        }, {
+            id: 7,
+            tag: "ပါးပန်ရာ နံ့သာဖို့မရ",
+            title: "ပါးပန်ရာ နံ့သာဖို့မရ",
+            illustration: "duckCrown",
+            caption: "“ကျွန်တော့်ရဲ့ အင်စကျူရတီများ”",
+            body: `ယခုခေတ် ဝတ္ထုတွေက သိပ်ကိုရက်စက်သား။
+အမြဲတမ်း ချောမောလှပတဲ့ သူတွေအကြောင်းပဲရေးထားတာ။
+သူ့ကိုကြည့်လိုက်ရင်၊ဘယ်လောက်တောင်စွဲမက်ဖို့ကောင်းသည်။ဘယ်လောက်တောင် ညှို့ယူဖွယ်ကောင်းသည်။
+စသဖြင့် ရုပ်၏ပြည့်စုံခြင်းအကြောင်းကိုဗဟိုပြုပြီး ဇာတ်ကောင်တွေဖန်တီးကြတာ။
+တစ်ခါတစ်လေ ထိုစာတွေကိုဖတ်နေရင်း
+မှန်ပြေးကြည့်မိသည့်အခါ ဝမ်းနည်းမှုတို့က အပြွတ်အသိပ်။
+စိတ်မလုံခြုံမှုတွေများစွာနဲ့ ထုဆစ်ထားတဲ့ ကျွန်တော့်ရဲ့ခန္ဓာကိုယ်က
+အချစ်ရေးအတွက် ဘယ်တော့မှအဆင်သင့်မဖြစ်ခဲ့ပါဘူး။
+ပါးပန်ရာ နံ့သာဖို့မရ တဲ့။
+ကျွန်တော့်ရဲ့ အနာအဆာတွေကို ဖို့လို့မှမရတာ။
+ကျွန်တော်သာ စာရေးဆရာဆိုကျွန်တော့်ဇာတ်ကောင်ကို အလားတူ မသိမ်ငယ်ရအောင် ပြန်ပြီးပြင်ဆင်ချင်သား။`
+        }];
+
+        const DEFAULT_PROLOGUE = `Time has a funny way of moving—sometimes slow like a lazy afternoon, and sometimes fast like turning the pages of a favorite storybook. Before we knew it, another wonderful year of your life has arrived!\n\nFor your birthday today, I wanted to give you something small that comes straight from the heart: seven little letters written just for you. Don’t ask why seven—my heart and my pen simply kept writing until every warm thought found its place on paper.\n\nAs you flip through these pages, I hope you feel how deeply appreciated, cherished, and celebrated you truly are. Happy Birthday!`;
+
+        // Application State
+        let appState = {
+            recipient: "မျက်ဝန်းညိုလေး",
+            sender: "Your ဘဲရုပ်ဆိုးလေး",
+            dateLabel: "November 25 • Special Day",
+            prologue: DEFAULT_PROLOGUE,
+            finalWish: `“May your days always be filled with warm cups of tea, gentle sunshine, and people who love your wonderful heart just as you are. Happy Birthday, မျက်ဝန်းညိုလေး!”`,
+            chapters: JSON.parse(JSON.stringify(DEFAULT_CHAPTERS))
+        };
+
+        let currentChapterIdx = 0;
+        let isFullScrollView = false;
+        let candleBlown = false;
+
+        // Load saved state from localStorage if available
+        function loadSavedState() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    appState = {...appState,
+                        ...parsed
+                    };
+                }
+            } catch (e) {
+                console.warn("Could not read saved state:", e);
+            }
+        }
+
+        function saveCustomState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            } catch (e) {
+                console.warn("Storage quota exceeded or unavailable:", e);
+            }
+        }
+
+        // Render all text & UI elements from appState
+        function renderApp() {
+            document.title = `Happy Birthday, ${appState.recipient} — A Little Book of Birthday Letters`;
+
+            document.querySelectorAll(".recipient-name-display").forEach(el => {
+                el.textContent = appState.recipient;
+            });
+            document.querySelectorAll(".sender-name-display").forEach(el => {
+                el.textContent = appState.sender;
+            });
+
+            document.getElementById("intro-date-display").textContent = appState.dateLabel;
+            document.getElementById("final-wish-text").textContent = appState.finalWish;
+
+            // Render Prologue paragraphs
+            const prologueContainer = document.getElementById("prologue-text");
+            prologueContainer.innerHTML = appState.prologue
+                .split("\n\n")
+                .map(p => `<p>${escapeHtml(p)}</p>`)
+                .join("");
+
+            // Render Chapter Pills & Dots
+            renderChapterControls();
+
+            // Render Active Chapter Card
+            renderCurrentChapter(false);
+
+            // Render Full Scroll View
+            renderAllLettersGrid();
+        }
+
+        function renderChapterControls() {
+            const pillsContainer = document.getElementById("chapter-pills");
+            const dotsContainer = document.getElementById("chapter-dots");
+
+            pillsContainer.innerHTML = appState.chapters.map((ch, idx) => {
+                const active = idx === currentChapterIdx;
+                return `
+                    <button onclick="selectChapter(${idx})" class="shrink-0 px-3.5 py-1.5 rounded-full font-sansUi text-xs font-bold transition cursor-pointer ${
+                        active
+                            ? "bg-coral text-white shadow-sm"
+                            : "bg-paper hover:bg-skySoft/40 text-ink border border-ink/10"
+                    }">
+                        0${idx + 1}. ${escapeHtml(ch.tag)}
+                    </button>
+                `;
+            }).join("");
+
+            dotsContainer.innerHTML = appState.chapters.map((_, idx) => {
+                const active = idx === currentChapterIdx;
+                return `
+                    <button onclick="selectChapter(${idx})" aria-label="Go to letter ${idx + 1}" class="h-2.5 rounded-full transition-all cursor-pointer ${
+                        active ? "w-7 bg-coral" : "w-2.5 bg-ink/20 hover:bg-skyAccent"
+                    }"></button>
+                `;
+            }).join("");
+        }
+
+        function renderCurrentChapter(animate = true) {
+            const contentBox = document.getElementById("chapter-card-content");
+            const chapter = appState.chapters[currentChapterIdx];
+            if (!chapter) return;
+
+            const updateDom = () => {
+                document.getElementById("chapter-badge").textContent = `Chapter 0${currentChapterIdx + 1}`;
+                document.getElementById("chapter-tag").textContent = `• ${chapter.tag}`;
+                document.getElementById("chapter-counter").textContent = `Page ${currentChapterIdx + 1} of ${appState.chapters.length}`;
+                document.getElementById("chapter-illustration").innerHTML = DUCK_ILLUSTRATIONS[chapter.illustration] || DUCK_ILLUSTRATIONS.ducklingFlower;
+                document.getElementById("chapter-caption").textContent = chapter.caption;
+                document.getElementById("chapter-title").textContent = chapter.title;
+                document.getElementById("chapter-body").textContent = chapter.body;
+
+                document.getElementById("prev-chapter-btn").disabled = currentChapterIdx === 0;
+                const nextBtn = document.getElementById("next-chapter-btn");
+                if (currentChapterIdx === appState.chapters.length - 1) {
+                    nextBtn.innerHTML = `<span>Make a Wish</span> <span>🎂</span>`;
+                } else {
+                    nextBtn.innerHTML = `<span>Next Letter</span> <span>→</span>`;
+                }
+                renderChapterControls();
+            };
+
+            if (animate) {
+                contentBox.classList.add("page-hidden");
+                setTimeout(() => {
+                    updateDom();
+                    contentBox.classList.remove("page-hidden");
+                }, 180);
+            } else {
+                updateDom();
+            }
+        }
+
+        function selectChapter(idx) {
+            if (isFullScrollView) {
+                toggleBookView();
+            }
+            currentChapterIdx = idx;
+            renderCurrentChapter(true);
+            playSoftPageSound();
+        }
+
+        function changeChapter(delta) {
+            const nextIdx = currentChapterIdx + delta;
+            if (nextIdx >= appState.chapters.length) {
+                document.getElementById("wish").scrollIntoView({
+                    behavior: "smooth"
+                });
+                return;
+            }
+            if (nextIdx >= 0 && nextIdx < appState.chapters.length) {
+                currentChapterIdx = nextIdx;
+                renderCurrentChapter(true);
+                playSoftPageSound();
+            }
+        }
+
+        function renderAllLettersGrid() {
+            const grid = document.getElementById("all-letters-grid");
+            grid.innerHTML = appState.chapters.map((ch, idx) => `
+                <article class="vintage-card book-spine rounded-3xl shadow-book border border-skySoft/80 p-6 sm:p-10">
+                    <div class="flex items-center justify-between border-b border-dashed border-ink/15 pb-3 mb-5">
+                        <span class="px-3 py-1 rounded-full bg-coral text-white font-sansUi text-xs font-bold uppercase">Chapter 0${idx + 1}</span>
+                        <span class="font-sansUi text-xs text-inkMuted">${escapeHtml(ch.tag)}</span>
+                    </div>
+                    <div class="grid md:grid-cols-12 gap-6 items-center">
+                        <div class="md:col-span-4 flex flex-col items-center">
+                            <div class="w-40 h-40 rounded-2xl bg-paperDark/70 border border-skySoft p-3">
+                                ${DUCK_ILLUSTRATIONS[ch.illustration] || DUCK_ILLUSTRATIONS.ducklingFlower}
+                            </div>
+                            <p class="font-hand text-lg text-inkMuted text-center mt-2 whitespace-pre-line">${escapeHtml(ch.caption)}</p>
+                        </div>
+                        <div class="md:col-span-8">
+                            <h3 class="font-serifTitle font-bold text-2xl text-ink mb-3">${escapeHtml(ch.title)}</h3>
+                            <div class="letter-lines font-serifBody text-base text-ink/90 whitespace-pre-line">${escapeHtml(ch.body)}</div>
+                            <div class="mt-5 text-right font-hand text-2xl text-coral font-bold">— ${escapeHtml(appState.sender)}</div>
+                        </div>
+                    </div>
+                </article>
+            `).join("");
+        }
+
+        function toggleBookView() {
+            isFullScrollView = !isFullScrollView;
+            const reader = document.getElementById("booklet-reader-container");
+            const allGrid = document.getElementById("all-letters-grid");
+            const label = document.getElementById("toggle-view-label");
+
+            if (isFullScrollView) {
+                reader.classList.add("hidden");
+                allGrid.classList.remove("hidden");
+                label.textContent = "Flip Page View";
+            } else {
+                reader.classList.remove("hidden");
+                allGrid.classList.add("hidden");
+                label.textContent = "Read All Pages";
+            }
+        }
+
+        // Candle Blow Interaction + Confetti + Birthday Chime
+        function blowCandle() {
+            const flame = document.getElementById("candle-flame-group");
+            const smoke = document.getElementById("candle-smoke");
+            const prompt = document.getElementById("candle-prompt");
+            const glow = document.getElementById("wish-glow");
+
+            if (!candleBlown) {
+                candleBlown = true;
+                flame.style.opacity = "0";
+                flame.style.transition = "opacity 0.3s ease";
+                glow.style.opacity = "0.08";
+                smoke.classList.remove("opacity-0");
+                prompt.textContent = "✨ Wish Made! Happy Birthday, " + appState.recipient + "! (Tap to relight)";
+                launchConfetti();
+                playBirthdayMelody();
+                showToast("🎂", `Happy Birthday, ${appState.recipient}!`);
+            } else {
+                candleBlown = false;
+                flame.style.opacity = "1";
+                glow.style.opacity = "0.28";
+                smoke.classList.add("opacity-0");
+                prompt.textContent = "🕯️ Tap the Cake to Blow Candle";
+            }
+        }
+
+        // Personalize Modal Logic
+        function openCustomizeModal() {
+            document.getElementById("input-recipient").value = appState.recipient;
+            document.getElementById("input-sender").value = appState.sender;
+            document.getElementById("input-date").value = appState.dateLabel;
+            document.getElementById("input-prologue").value = appState.prologue;
+            document.getElementById("input-final-wish").value = appState.finalWish;
+
+            const select = document.getElementById("edit-chapter-select");
+            select.innerHTML = appState.chapters.map((ch, i) =>
+                `<option value="${i}">Chapter 0${i + 1}: ${escapeHtml(ch.title)}</option>`
+            ).join("");
+            select.value = currentChapterIdx;
+            loadChapterIntoEditor();
+
+            const modal = document.getElementById("customize-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeCustomizeModal() {
+            const modal = document.getElementById("customize-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function loadChapterIntoEditor() {
+            const idx = parseInt(document.getElementById("edit-chapter-select").value, 10);
+            const ch = appState.chapters[idx];
+            if (!ch) return;
+            document.getElementById("input-chapter-tag").value = ch.tag;
+            document.getElementById("input-chapter-title").value = ch.title;
+            document.getElementById("input-chapter-caption").value = ch.caption;
+            document.getElementById("input-chapter-body").value = ch.body;
+        }
+
+        function saveCurrentEditedChapter() {
+            const idx = parseInt(document.getElementById("edit-chapter-select").value, 10);
+            appState.chapters[idx].tag = document.getElementById("input-chapter-tag").value.trim() || appState.chapters[idx].tag;
+            appState.chapters[idx].title = document.getElementById("input-chapter-title").value.trim() || appState.chapters[idx].title;
+            appState.chapters[idx].caption = document.getElementById("input-chapter-caption").value.trim() || appState.chapters[idx].caption;
+            appState.chapters[idx].body = document.getElementById("input-chapter-body").value.trim() || appState.chapters[idx].body;
+            showToast("📝", `Updated Chapter 0${idx + 1}!`);
+        }
+
+        function applyCustomizations() {
+            saveCurrentEditedChapter();
+            const oldRecipient = appState.recipient;
+            const newRecipient = document.getElementById("input-recipient").value.trim() || "မျက်ဝန်းညိုလေး";
+            appState.recipient = newRecipient;
+            appState.sender = document.getElementById("input-sender").value.trim() || "Your ဘဲရုပ်ဆိုးလေး";
+            appState.dateLabel = document.getElementById("input-date").value.trim() || "November 25 • Special Day";
+            appState.prologue = document.getElementById("input-prologue").value.trim() || appState.prologue;
+
+            let updatedWish = document.getElementById("input-final-wish").value.trim() || appState.finalWish;
+            if (oldRecipient && oldRecipient !== newRecipient) {
+                updatedWish = updatedWish.split(oldRecipient).join(newRecipient);
+            }
+            appState.finalWish = updatedWish;
+
+            saveCustomState();
+            renderApp();
+            closeCustomizeModal();
+            showToast("✨", "Your birthday book is updated!");
+        }
+
+        function resetToDefaults() {
+            localStorage.removeItem(STORAGE_KEY);
+            appState = {
+                recipient: "မျက်ဝန်းညိုလေး",
+                sender: "Your ဘဲရုပ်ဆိုးလေး",
+                dateLabel: "November 25 • Special Day",
+                prologue: DEFAULT_PROLOGUE,
+                finalWish: `“May your days always be filled with warm cups of tea, gentle sunshine, and people who love your wonderful heart just as you are. Happy Birthday, မျက်ဝန်းညိုလေး!”`,
+                chapters: JSON.parse(JSON.stringify(DEFAULT_CHAPTERS))
+            };
+            renderApp();
+            closeCustomizeModal();
+            showToast("🔄", "Reset to default birthday book!");
+        }
+
+        // Share / Copy Keepsake Message
+        function shareKeepsake() {
+            const textToCopy = `Happy Birthday, ${appState.recipient}! 🎂🐥 Read your birthday letter book here: ${window.location.href}`;
+            const tempInput = document.createElement("textarea");
+            tempInput.value = textToCopy;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand("copy");
+                showToast("📋", "Birthday greeting copied to clipboard!");
+            } catch (err) {
+                showToast("🖨️", "Use Print / Save as PDF to share!");
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        // Toast Helper
+        let toastTimeout;
+
+        function showToast(icon, message) {
+            const banner = document.getElementById("toast-banner");
+            document.getElementById("toast-icon").textContent = icon;
+            document.getElementById("toast-text").textContent = message;
+            banner.classList.remove("opacity-0", "translate-y-3");
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                banner.classList.add("opacity-0", "translate-y-3");
+            }, 2800);
+        }
+
+        // Gentle Tone.js Sound Effects
+        async function playChime() {
+            try {
+                await Tone.start();
+                const synth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: {
+                        type: "sine"
+                    },
+                    envelope: {
+                        attack: 0.02,
+                        decay: 0.3,
+                        sustain: 0.1,
+                        release: 0.8
+                    }
+                }).toDestination();
+                synth.volume.value = -12;
+                const now = Tone.now();
+                synth.triggerAttackRelease("C5", "8n", now);
+                synth.triggerAttackRelease("E5", "8n", now + 0.12);
+                synth.triggerAttackRelease("G5", "4n", now + 0.24);
+            } catch (e) {}
+        }
+
+        async function playSoftPageSound() {
+            try {
+                await Tone.start();
+                const synth = new Tone.Synth({
+                    oscillator: {
+                        type: "triangle"
+                    },
+                    envelope: {
+                        attack: 0.01,
+                        decay: 0.12,
+                        sustain: 0,
+                        release: 0.1
+                    }
+                }).toDestination();
+                synth.volume.value = -18;
+                synth.triggerAttackRelease("A4", "16n");
+            } catch (e) {}
+        }
+
+        async function playBirthdayMelody() {
+            try {
+                await Tone.start();
+                const synth = new Tone.Synth({
+                    oscillator: {
+                        type: "triangle"
+                    },
+                    envelope: {
+                        attack: 0.03,
+                        decay: 0.2,
+                        sustain: 0.2,
+                        release: 0.6
+                    }
+                }).toDestination();
+                synth.volume.value = -10;
+                const notes = [
+                    ["C4", 0],
+                    ["C4", 0.25],
+                    ["D4", 0.5],
+                    ["C4", 0.9],
+                    ["F4", 1.3],
+                    ["E4", 1.7]
+                ];
+                const now = Tone.now();
+                notes.forEach(([note, offset]) => {
+                    synth.triggerAttackRelease(note, "8n", now + offset);
+                });
+            } catch (e) {}
+        }
+
+        // Confetti Particle System
+        const confettiCanvas = document.getElementById("confetti-canvas");
+        const ctx = confettiCanvas.getContext("2d");
+        let confettiPieces = [];
+        let confettiAnimating = false;
+
+        function resizeConfettiCanvas() {
+            confettiCanvas.width = window.innerWidth;
+            confettiCanvas.height = window.innerHeight;
+        }
+        window.addEventListener("resize", resizeConfettiCanvas);
+
+        function launchConfetti() {
+            resizeConfettiCanvas();
+            const colors = ["#89CFF0", "#F4D03F", "#E07A5F", "#B0E0E6", "#588157"];
+            for (let i = 0; i < 95; i++) {
+                confettiPieces.push({
+                    x: Math.random() * confettiCanvas.width,
+                    y: -20 - Math.random() * 140,
+                    w: 7 + Math.random() * 6,
+                    h: 5 + Math.random() * 5,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    vx: -2 + Math.random() * 4,
+                    vy: 2.5 + Math.random() * 3.5,
+                    rot: Math.random() * 360,
+                    vRot: -4 + Math.random() * 8
+                });
+            }
+            if (!confettiAnimating) {
+                confettiAnimating = true;
+                animateConfetti();
+            }
+        }
+
+        function animateConfetti() {
+            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+            confettiPieces.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rot += p.vRot;
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate((p.rot * Math.PI) / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                ctx.restore();
+            });
+            confettiPieces = confettiPieces.filter(p => p.y < confettiCanvas.height + 30);
+            if (confettiPieces.length > 0) {
+                requestAnimationFrame(animateConfetti);
+            } else {
+                confettiAnimating = false;
+            }
+        }
+
+        // Touch Swipe Support for Booklet Reader
+        let touchStartX = 0;
+        const readerEl = document.getElementById("booklet-reader-container");
+        readerEl.addEventListener("touchstart", e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {
+            passive: true
+        });
+        readerEl.addEventListener("touchend", e => {
+            const diff = e.changedTouches[0].screenX - touchStartX;
+            if (Math.abs(diff) > 50) {
+                changeChapter(diff < 0 ? 1 : -1);
+            }
+        }, {
+            passive: true
+        });
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;");
+        }
+
+        // Initialize on Window Load
+        window.onload = function() {
+            resizeConfettiCanvas();
+            loadSavedState();
+            renderApp();
+        };
+    </script>
+</body>
+
+</html>
